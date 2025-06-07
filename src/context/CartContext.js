@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 
 // Create the context
 const CartContext = createContext();
@@ -77,32 +77,34 @@ const cartReducer = (state, action) => {
   }
 };
 
-// Initial cart state
-const initialState = {
-  items: []
-};
-
 // Cart Provider Component
 export const CartProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [state, dispatch] = useReducer(cartReducer, { items: [] });
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Load cart from sessionStorage on component mount
   useEffect(() => {
     const savedCart = sessionStorage.getItem('shopping-cart');
+    
     if (savedCart) {
       try {
         const cartData = JSON.parse(savedCart);
+        
         dispatch({ type: CART_ACTIONS.LOAD_CART, payload: cartData });
       } catch (error) {
-        console.error('Failed to load cart from storage:', error);
+        console.error('❌ Failed to load cart from storage:', error);
       }
     }
+    
+    setIsLoaded(true);
   }, []);
 
-  // Save cart to sessionStorage whenever cart changes
+  // Save cart to sessionStorage whenever cart changes (but only after initial load)
   useEffect(() => {
-    sessionStorage.setItem('shopping-cart', JSON.stringify(state.items));
-  }, [state.items]);
+    if (isLoaded) {
+      sessionStorage.setItem('shopping-cart', JSON.stringify(state.items));
+    }
+  }, [state.items, isLoaded]);
 
   // Calculate cart totals
   const cartTotal = state.items.reduce((total, item) => {

@@ -70,5 +70,6 @@ export const getProducts = async (count = 10) => {
         return products;
     } catch (error) {
         console.error('Error fetching products:', error);
+        throw error;
     }
 };
