@@ -17,7 +17,7 @@ function App() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const productsData = await getProducts(6);
+        const productsData = await getProducts(20);
         setProducts(productsData);
       } catch (err) {
         setError(err.message);
